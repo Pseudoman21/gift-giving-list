@@ -97,8 +97,8 @@ export default function Home() {
   const totalMoneyAmount = persons.reduce((sum, p) => sum + (p.giveMoney ? p.moneyAmount : 0), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
-      <div className="max-w-5xl mx-auto p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 overflow-x-hidden">
+      <div className="max-w-5xl mx-auto p-4 md:p-8 w-full">
         {/* Header */}
         <div className="text-center mb-8 pt-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-green-600 mb-4 shadow-lg">
