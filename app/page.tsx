@@ -29,6 +29,14 @@ export default function Home() {
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({ message: '', visible: false });
+
+  const showToast = (message: string) => {
+    setToast({ message, visible: true });
+    setTimeout(() => {
+      setToast({ message: '', visible: false });
+    }, 3000);
+  };
 
   // Save to localStorage whenever persons change
   useEffect(() => {
@@ -50,11 +58,16 @@ export default function Home() {
       };
       setPersons([newPerson, ...persons]);
       setNewName('');
+      showToast(`${newName.trim()} added to the list!`);
     }
   };
 
   const deletePerson = (id: string) => {
+    const person = persons.find(p => p.id === id);
     setPersons(persons.filter(p => p.id !== id));
+    if (person) {
+      showToast(`${person.name} removed from the list`);
+    }
   };
 
   const startEdit = (person: Person) => {
@@ -69,6 +82,7 @@ export default function Home() {
       ));
       setEditingId(null);
       setEditingName('');
+      showToast('Name updated successfully!');
     }
   };
 
@@ -78,9 +92,13 @@ export default function Home() {
   };
 
   const toggleMoney = (id: string) => {
+    const person = persons.find(p => p.id === id);
     setPersons(persons.map(p =>
       p.id === id ? { ...p, giveMoney: !p.giveMoney } : p
     ));
+    if (person) {
+      showToast(person.giveMoney ? 'Money gift removed' : 'Money gift added');
+    }
   };
 
   const updateMoneyAmount = (id: string, amount: string) => {
@@ -91,21 +109,33 @@ export default function Home() {
   };
 
   const toggleGift = (id: string) => {
+    const person = persons.find(p => p.id === id);
     setPersons(persons.map(p =>
       p.id === id ? { ...p, giveGift: !p.giveGift } : p
     ));
+    if (person) {
+      showToast(person.giveGift ? 'Physical gift removed' : 'Physical gift added');
+    }
   };
 
   const toggleMoneyGiven = (id: string) => {
+    const person = persons.find(p => p.id === id);
     setPersons(persons.map(p =>
       p.id === id ? { ...p, moneyGiven: !p.moneyGiven } : p
     ));
+    if (person) {
+      showToast(person.moneyGiven ? 'Money marked as pending' : 'Money marked as given!');
+    }
   };
 
   const toggleGiftGiven = (id: string) => {
+    const person = persons.find(p => p.id === id);
     setPersons(persons.map(p =>
       p.id === id ? { ...p, giftGiven: !p.giftGiven } : p
     ));
+    if (person) {
+      showToast(person.giftGiven ? 'Gift marked as pending' : 'Gift marked as given!');
+    }
   };
 
   const moneyCount = persons.filter(p => p.giveMoney).length;
@@ -424,6 +454,15 @@ export default function Home() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Toast Notification */}
+      <div
+        className={`fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-300 z-50 ${
+          toast.visible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'
+        }`}
+      >
+        <p className="text-sm font-medium">{toast.message}</p>
       </div>
     </div>
   );
