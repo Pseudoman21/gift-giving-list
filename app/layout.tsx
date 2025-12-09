@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Christmas Gift List | Track Your Holiday Giving",
   description: "Organize your Christmas gift giving with ease. Track who gets money, gifts, and manage your holiday budget all in one place.",
+  icons: {
+    icon: "/favicon.png",
+  },
   openGraph: {
     title: "Christmas Gift List | Track Your Holiday Giving",
     description: "Organize your Christmas gift giving with ease. Track who gets money, gifts, and manage your holiday budget all in one place.",
