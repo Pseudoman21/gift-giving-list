@@ -8,6 +8,8 @@ interface Person {
   giveMoney: boolean;
   moneyAmount: number;
   giveGift: boolean;
+  moneyGiven?: boolean;
+  giftGiven?: boolean;
 }
 
 export default function Home() {
@@ -43,6 +45,8 @@ export default function Home() {
         giveMoney: false,
         moneyAmount: 0,
         giveGift: false,
+        moneyGiven: false,
+        giftGiven: false,
       };
       setPersons([newPerson, ...persons]);
       setNewName('');
@@ -92,9 +96,35 @@ export default function Home() {
     ));
   };
 
+  const toggleMoneyGiven = (id: string) => {
+    setPersons(persons.map(p =>
+      p.id === id ? { ...p, moneyGiven: !p.moneyGiven } : p
+    ));
+  };
+
+  const toggleGiftGiven = (id: string) => {
+    setPersons(persons.map(p =>
+      p.id === id ? { ...p, giftGiven: !p.giftGiven } : p
+    ));
+  };
+
   const moneyCount = persons.filter(p => p.giveMoney).length;
   const giftCount = persons.filter(p => p.giveGift).length;
-  const totalMoneyAmount = persons.reduce((sum, p) => sum + (p.giveMoney ? p.moneyAmount : 0), 0);
+
+  // Calculate pending and given totals
+  const pendingCount = persons.filter(p =>
+    (p.giveMoney && !p.moneyGiven) || (p.giveGift && !p.giftGiven)
+  ).length;
+  const givenCount = persons.filter(p =>
+    (p.giveMoney && p.moneyGiven) || (p.giveGift && p.giftGiven)
+  ).length;
+
+  // Calculate money amounts
+  const givenMoneyAmount = persons.reduce((sum, p) =>
+    sum + (p.giveMoney && p.moneyGiven ? p.moneyAmount : 0), 0);
+  const remainingMoneyAmount = persons.reduce((sum, p) =>
+    sum + (p.giveMoney && !p.moneyGiven ? p.moneyAmount : 0), 0);
+  const totalMoneyAmount = givenMoneyAmount + remainingMoneyAmount;
 
   return (
     <div className="min-h-screen overflow-x-hidden">
@@ -231,11 +261,33 @@ export default function Home() {
                             </div>
                           </div>
                           {person.giveMoney && (
-                            <div className="flex items-center gap-1 text-green-600">
-                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleMoneyGiven(person.id);
+                              }}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-sm transition-all ${
+                                person.moneyGiven
+                                  ? 'bg-green-600 text-white hover:bg-green-700'
+                                  : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border-2 border-yellow-300'
+                              }`}
+                            >
+                              {person.moneyGiven ? (
+                                <>
+                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                  Given
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  Pending
+                                </>
+                              )}
+                            </button>
                           )}
                         </div>
                         {person.giveMoney && (
@@ -282,12 +334,33 @@ export default function Home() {
                             </div>
                           </div>
                           {person.giveGift && (
-                            <div className="flex items-center gap-2 text-green-600">
-                              <span className="text-sm font-semibold">Ready</span>
-                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleGiftGiven(person.id);
+                              }}
+                              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-semibold text-sm transition-all ${
+                                person.giftGiven
+                                  ? 'bg-green-600 text-white hover:bg-green-700'
+                                  : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border-2 border-yellow-300'
+                              }`}
+                            >
+                              {person.giftGiven ? (
+                                <>
+                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                  Given
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  Pending
+                                </>
+                              )}
+                            </button>
                           )}
                         </div>
                       </div>
@@ -305,7 +378,7 @@ export default function Home() {
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               Summary
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
                 <div className="text-3xl font-bold text-blue-700">{persons.length}</div>
                 <div className="text-xs text-blue-600 font-semibold mt-1 uppercase tracking-wide">Total People</div>
@@ -318,11 +391,35 @@ export default function Home() {
                 <div className="text-3xl font-bold text-red-700">{giftCount}</div>
                 <div className="text-xs text-red-600 font-semibold mt-1 uppercase tracking-wide">Physical Gifts</div>
               </div>
+              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
+                <div className="text-3xl font-bold text-yellow-700">{pendingCount}</div>
+                <div className="text-xs text-yellow-600 font-semibold mt-1 uppercase tracking-wide">Pending</div>
+              </div>
+              <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl p-4 border border-teal-200 col-span-2 md:col-span-1">
+                <div className="text-3xl font-bold text-teal-700">{givenCount}</div>
+                <div className="text-xs text-teal-600 font-semibold mt-1 uppercase tracking-wide">Given</div>
+              </div>
+            </div>
+
+            {/* Money Amount Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
                 <div className="text-2xl font-bold text-emerald-700">
                   ₱{totalMoneyAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="text-xs text-emerald-600 font-semibold mt-1 uppercase tracking-wide">Total Amount</div>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                <div className="text-2xl font-bold text-green-700">
+                  ₱{givenMoneyAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div className="text-xs text-green-600 font-semibold mt-1 uppercase tracking-wide">Amount Given</div>
+              </div>
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+                <div className="text-2xl font-bold text-orange-700">
+                  ₱{remainingMoneyAmount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div className="text-xs text-orange-600 font-semibold mt-1 uppercase tracking-wide">Remaining Amount</div>
               </div>
             </div>
           </div>
